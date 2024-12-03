@@ -72,14 +72,12 @@ jobs:
         run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
 
          
-      # Optional: Save Playwright video/artifacts (if enabled in Playwright config)
       - name: Upload Playwright Videos/Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: test-video
+          name: allure-results
           path: allure-results  # Path where Playwright saves video files
 
-      # Optional: Upload Allure report
       - name: Upload Allure Report
         uses: actions/upload-artifact@v4
         with:
