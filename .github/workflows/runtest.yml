@@ -130,7 +130,7 @@ jobs:
         path: merged-allure-results
 
     - name: Generate Allure report 
-      run: npx allure generate ./merged-allure-results -o ./allure-report --clean
+      run: npx allure generate --clean --single-file
 
     # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
     - name: Backup the history with the latest data
