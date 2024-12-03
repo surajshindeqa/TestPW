@@ -57,6 +57,11 @@ jobs:
           pactl load-module module-null-sink sink_name=vspeaker sink_properties=device.description=virtual_speaker
           pactl load-module module-remap-source master=vspeaker.monitor source_name=vmic source_properties=device.description=virtual_mic
 
+      - name: install xvfb
+        run: |
+          sudo apt update
+          sudo apt install xvfb
+
       - name: Install PulseAudio on Ubuntu
         run: pulseaudio --start
 
@@ -64,7 +69,7 @@ jobs:
         run: pactl info
       
       - name: Run Tests
-        run: npx cucumber-js --format progress
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
 
       - name: Load test report history
         uses: actions/checkout@v3
