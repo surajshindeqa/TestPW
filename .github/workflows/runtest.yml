@@ -71,29 +71,29 @@ jobs:
       - name: Run Tests
         run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
 
-      - name: Load test report history
-        uses: actions/checkout@v3
-        if: always()
-        continue-on-error: true
+      - name: Generate Allure report
+        run: 
+          allure generate ./allure-results -o ./allure-report --clean
+          
+      # Optional: Save Playwright video/artifacts (if enabled in Playwright config)
+      - name: Upload Playwright Videos/Artifacts
+        uses: actions/upload-artifact@v4
         with:
-          ref: gh-pages
-          path: gh-pages
+          name: test-video
+          path: allure-results  # Path where Playwright saves video files
 
-      - name: Build test report
-        uses: simple-elf/allure-report-action@v1.7
-        if: always()
+      # Optional: Upload Allure report
+      - name: Upload Allure Report
+        uses: actions/upload-artifact@v4
         with:
-          gh_pages: gh-pages
-          allure_history: allure-history
-          allure_results: build/allure-results
+          name: allure-report
+          path: allure-report  # Path where Allure reports are generated
 
-      - name: Publish test report
+      - name: Deploy Allure report to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
-        if: always()
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_branch: gh-pages
-          publish_dir: allure-history
+          publish_dir: ./allure-report
 
 
   generate-report:
