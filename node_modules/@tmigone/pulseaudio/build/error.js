@@ -1,0 +1,36 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.PAError = exports.PAErrorList = void 0;
+var PAErrorList;
+(function (PAErrorList) {
+    PAErrorList["PA_OK"] = "OK";
+    PAErrorList["PA_ERR_ACCESS"] = "Access denied";
+    PAErrorList["PA_ERR_COMMAND"] = "Unknown command";
+    PAErrorList["PA_ERR_INVALID"] = "Invalid argument";
+    PAErrorList["PA_ERR_EXIST"] = "Entity exists";
+    PAErrorList["PA_ERR_NOENTITY"] = "No such entity";
+    PAErrorList["PA_ERR_CONNECTIONREFUSED"] = "Connection refused";
+    PAErrorList["PA_ERR_PROTOCOL"] = "Protocol error";
+    PAErrorList["PA_ERR_TIMEOUT"] = "Timeout";
+    PAErrorList["PA_ERR_AUTHKEY"] = "No authentication key";
+    PAErrorList["PA_ERR_INTERNAL"] = "Internal error";
+    PAErrorList["PA_ERR_CONNECTIONTERMINATED"] = "Connection terminated";
+    PAErrorList["PA_ERR_KILLED"] = "Entity killed";
+    PAErrorList["PA_ERR_INVALIDSERVER"] = "Invalid server";
+    PAErrorList["PA_ERR_MODINITFAILED"] = "Module initialization failed";
+    PAErrorList["PA_ERR_BADSTATE"] = "Bad state";
+    PAErrorList["PA_ERR_NODATA"] = "No data";
+    PAErrorList["PA_ERR_VERSION"] = "Incompatible protocol version";
+    PAErrorList["PA_ERR_TOOLARGE"] = "Too large";
+    PAErrorList["PA_ERR_NOTSUPPORTED"] = "Not supported";
+    PAErrorList["PA_ERR_UNKNOWN"] = "Unknown error code";
+    PAErrorList["PA_ERR_NOEXTENSION"] = "No such extension";
+    PAErrorList["PA_ERR_OBSOLETE"] = "Obsolete functionality";
+    PAErrorList["PA_ERR_NOTIMPLEMENTED"] = "Missing implementation";
+    PAErrorList["PA_ERR_FORKED"] = "Client forked";
+    PAErrorList["PA_ERR_IO"] = "Input/Output error";
+    PAErrorList["PA_ERR_BUSY"] = "Device or resource busy";
+})(PAErrorList = exports.PAErrorList || (exports.PAErrorList = {}));
+;
+exports.PAError = Object.values(PAErrorList);
+//# sourceMappingURL=error.js.map
