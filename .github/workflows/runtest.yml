@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
 
     steps:
-      # Step 1: Checkout code
+
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -57,6 +57,12 @@ jobs:
           pactl load-module module-null-sink sink_name=vspeaker sink_properties=device.description=virtual_speaker
           pactl load-module module-remap-source master=vspeaker.monitor source_name=vmic source_properties=device.description=virtual_mic
 
+      - name: Install PulseAudio on Ubuntu
+        run: pulseaudio --start
+
+      - name: Check virtual drivers
+        run: pactl info
+      
       - name: Run Tests
         run: npx cucumber-js --format progress
 

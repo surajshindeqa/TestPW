@@ -1,11 +1,11 @@
 {
   "inputs": [
     {
-      "userInput": "How long have you had this trouble for?",
+      "userInput": "Do you have any trouble?",
       "expectedResponse": "The symptoms began about four weeks ago."
     },
     {
-      "userInput": "Did anything happen 4 weeks ago that might have started these symptoms up?",
+      "userInput": "Did anything happen that might have affected your body?",
       "expectedResponse": "Yes, I recently broke up with my long-term partner and now live alone, which has been difficult."
     }
   ]

@@ -116,10 +116,9 @@ Given('Transcript is fetched', function() {
 When('User launches simulation', async function () {
    try {
       browser = await chromium.launch({ 
-      headless: true,
+      headless: false,
       args: [
-         '--start-maximized', 
-         '--window-size=1920,1040'
+         '--start-maximized'
        ]
    });
 
@@ -180,7 +179,6 @@ Then('User responds to Avatar', async function () {
       await page.waitForTimeout(3000);
 
       // Convert the user input to audio and play it
-
       await convertToAudio(userInput);
       playAudio(wavFilePath);
 
