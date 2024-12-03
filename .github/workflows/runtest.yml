@@ -132,9 +132,9 @@ jobs:
     - name: Generate Allure report 
       run: npx allure generate --clean --single-file
 
-    # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
-    - name: Backup the history with the latest data
-      run: aws s3 cp ./allure-report/history s3://audirietestreports/history/  --recursive
+    # # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
+    # - name: Backup the history with the latest data
+    #   run: aws s3 cp ./allure-report/history s3://audirietestreports/history/  --recursive
 
     - name: Deploy html report to S3
       run: aws s3 cp ./allure-report s3://audirietestreports/report/${{ steps.timestampid.outputs.timestamp }}/ --recursive
