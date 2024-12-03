@@ -118,8 +118,7 @@ When('User launches simulation', async function () {
       browser = await chromium.launch({ 
       headless: true,
       args: [
-         '--start-maximized',
-         '--use-fake-ui-for-media-stream', 
+         '--start-maximized', 
          '--window-size=1920,1040'
        ]
    });
@@ -181,11 +180,6 @@ Then('User responds to Avatar', async function () {
       await page.waitForTimeout(3000);
 
       // Convert the user input to audio and play it
-
-      await page.evaluate(() => {
-         const exec = require('child_process').exec;
-         exec('aplay output.wav');
-       });
 
       await convertToAudio(userInput);
       playAudio(wavFilePath);
