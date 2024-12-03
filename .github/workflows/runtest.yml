@@ -52,9 +52,16 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      # Step 5: Install jackd2 driver
-      - name: Install jackd2 driver
-        run: sudo apt install jackd2
+
+        # Step 4: Install Playwright Browsers
+      - name: Install pulseaudio
+        run: |
+            sudo apt-get update
+            sudo apt-get install -y pulseaudio
+            pulseaudio --check || pulseaudio --start
+            pactl load-module module-null-sink sink_name=vspeaker sink_properties=device.description=virtual_speaker
+            pactl load-module module-remap-source master=vspeaker.monitor source_name=vmic source_properties=device.description=virtual_mic
+
 
       # Step 6: Run Tests
       - name: Run Tests
