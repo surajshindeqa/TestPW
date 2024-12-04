@@ -102,6 +102,18 @@ function playAudio(filePath: string) {
 
 Given('Transcript is fetched', function() {
 
+   const fileName = path.basename(__filename);
+
+   function getUpToSecondUnderscore(fileName: string) {
+   const parts = fileName.split('_'); // Split the string by underscores
+      if (parts.length > 2) {
+         return parts.slice(0, 2).join('_'); // Join the first two parts
+      }
+      return '';
+   }
+
+   const prefix= getUpToSecondUnderscore(fileName);
+
    const transcriptData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../files/transcript.json'), 'utf-8'));
    userInputs = transcriptData.inputs.map((input: { userInput: any; }) => input.userInput);
    responsetxt = transcriptData.inputs.map((input: { expectedResponse: any; }) => input.expectedResponse);

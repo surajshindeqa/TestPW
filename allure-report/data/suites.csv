@@ -1,2 +1,5 @@
 "DESCRIPTION","DURATION IN MS","NAME","PARENT SUITE","START TIME","STATUS","STOP TIME","SUB SUITE","SUITE","TEST CLASS","TEST METHOD"
-"","176983","Automated Test for Aged Care Simulation","","Tue Dec 03 15:30:44 IST 2024","passed","Tue Dec 03 15:33:41 IST 2024","","","",""
+"","57665","Run through an Aged Care simulation and pause it once in the simulation.","","Thu Dec 05 01:17:40 IST 2024","passed","Thu Dec 05 01:18:37 IST 2024","","","",""
+"","224","Resume a paused Aged Care simulation and pause a second time.","","Thu Dec 05 01:18:37 IST 2024","passed","Thu Dec 05 01:18:37 IST 2024","","","",""
+"","75485","Automated Test for Aged Care Simulation","","Thu Dec 05 01:16:24 IST 2024","broken","Thu Dec 05 01:17:40 IST 2024","","","",""
+"","12307","User login to Audirie with valid credentials","","Thu Dec 05 01:16:12 IST 2024","passed","Thu Dec 05 01:16:24 IST 2024","","","",""

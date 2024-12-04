@@ -1,0 +1,12 @@
+{
+  "inputs": [
+    {
+      "userInput": "So nice to see you. How can I help you?",
+      "expectedResponse": "I'm just feeling a little tired today, thank you for asking."
+    },
+    {
+      "userInput": "Do you need some medications?",
+      "expectedResponse": "Oh, I think I'm alright with my current medications."
+    }
+  ]
+}

@@ -5,10 +5,8 @@ import * as path from 'path';
 import axios from 'axios';
 import * as gtts from 'google-tts-api'
 import ffmpeg = require('fluent-ffmpeg');
-import { Browser, BrowserContext, Page, chromium } from 'playwright';
+import { getPage } from "../../corelib/corelib.spec";
 
-setDefaultTimeout(1000000);
-let browser:Browser, context:BrowserContext, page:Page;
 const outputFilePath = path.join(__dirname, '../output.mp3');
 const wavFilePath = path.join(__dirname, '../output.wav');
 let responsetxt: string | string[] = [];
@@ -42,6 +40,7 @@ async function convertToAudio(textToConvert: string){
 
    await new Promise((resolve, reject) => {
       ffmpeg(outputFilePath)
+      .outputOptions('-loglevel', 'error') // Suppress logs
       .toFormat('wav')
       .on('end', resolve)
       .on('error', reject)
@@ -56,9 +55,21 @@ function playAudio(filePath: string) {
    });
 }
 
-Given('Transcript is fetched', function() {
+Given('TESTPREFIX Transcript is fetched', function() {
 
-   const transcriptData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../files/transcript.json'), 'utf-8'));
+   const fileName = path.basename(__filename);
+
+   function getUpToSecondUnderscore(fileName: string) {
+   const parts = fileName.split('_'); // Split the string by underscores
+      if (parts.length > 2) {
+         return parts.slice(0, 2).join('_'); // Join the first two parts
+      }
+      return '';
+   }
+
+   const prefix= getUpToSecondUnderscore(fileName);
+
+   const transcriptData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '../files/',`${prefix}_transcript.json`), 'utf-8'));
    userInputs = transcriptData.inputs.map((input: { userInput: any; }) => input.userInput);
    responsetxt = transcriptData.inputs.map((input: { expectedResponse: any; }) => input.expectedResponse);
 
@@ -69,45 +80,18 @@ Given('Transcript is fetched', function() {
 
 });
 
-When('User launches simulation', async function () {
-   try {
-      browser = await chromium.launch({ 
-      headless: true,
-      args: [
-         '--start-maximized',
-         '--use-fake-device-for-media-stream',
-         '--use-fake-ui-for-media-stream',
-         '--use-file-for-fake-audio-capture=e2e/tests/output.wav',
-      ]
-   });
-
-   context = await browser.newContext({ 
-      viewport:null,
-      javaScriptEnabled:true,
-      recordVideo: {
-         dir: './videos/',
-         size: { width: 1280, height: 720 } // Directory to save videos
-      },
-      permissions: ['microphone'] 
-   });
-
-   page = await context.newPage();
+When('TESTPREFIX User launches simulation', async function () {
+ 
+   await getPage().goto('https://app.audirie.com/');
+   await getPage().fill('[placeholder="name@example.com"]', 'suraj@audirie.com');
+   await getPage().fill('[placeholder="Password"]', 'Test@1234');
+   await getPage().click('button:has-text("Login")');
+   await getPage().click('text=Admin - New Bundle Type');
+   await getPage().click('text=Aged Care Simulations');
+   await getPage().click('[title="Aged Care"]');
+   await getPage().click('button:has-text("Resume"), button:has-text("Launch")');
    
-   }catch(error){
-      console.error('Test failed:', error);
-      throw error; 
-   }
-
-   await page.goto('https://app.audirie.com/');
-   await page.fill('[placeholder="name@example.com"]', 'suraj@audirie.com');
-   await page.fill('[placeholder="Password"]', 'Test@1234');
-   await page.click('button:has-text("Login")');
-   await page.click('text=Admin - New Bundle Type');
-   await page.click('text=Aged Care Simulations');
-   await page.click('[title="Aged Care"]');
-   await page.click('button:has-text("Resume"), button:has-text("Launch")');
-   
-   const dialog = page.locator('div[role="dialog"]');
+   const dialog = getPage().locator('div[role="dialog"]');
    await dialog.waitFor({ state: 'visible', timeout: 5000 }).catch(() => {
       console.log('Dialog not found');
    });
@@ -119,34 +103,34 @@ When('User launches simulation', async function () {
       }
    }
    
-   await page.waitForTimeout(13000);
+   await getPage().waitForTimeout(13000);
       
 });
 
 
 
-Then('User responds to Avatar', async function () {
+Then('TESTPREFIX User responds to Avatar', async function () {
    for (const { userInput, expectedResponse } of data) {
       // Log user input and expected response
       this.attach('User Input: ' + userInput);
       this.attach('Expected Response: ' + expectedResponse);
 
       // Wait for the "Next" button to appear
-      await page.waitForSelector('//a[text()="Next"]');
-      await page.waitForTimeout(3000);
+      await getPage().waitForSelector('//a[text()="Next"]');
+      await getPage().waitForTimeout(3000);
 
       // Convert the user input to audio and play it
       await convertToAudio(userInput);
       playAudio(wavFilePath);
 
       // Wait for the audio to play
-      await page.waitForTimeout(10000);
+      await getPage().waitForTimeout(10000);
 
       // Click the "Next" button
-      await page.locator('//a[text()="Next"]').click();
+      await getPage().locator('//a[text()="Next"]').click();
 
       // Get the Avatar's response
-      const avatarResponse = await page.textContent('//div[@id="questions"]/div[2]/p');
+      const avatarResponse = await getPage().textContent('//div[@id="questions"]/div[2]/p');
       this.attach('Avatar Response: ' + avatarResponse);
 
       // Perform similarity check
@@ -172,42 +156,8 @@ Then('User responds to Avatar', async function () {
 });
 
 
-Then('Verify the Avatar response with expected response', async function () {
+Then('TESTPREFIX Verify the Avatar response with expected response', async function () {
 
    
 
-});
-
-After(async function (scenario) {
-
-   if (scenario.result?.status === Status.FAILED) {
-
-      // Capture a screenshot on failure
-      const screenshot = await page.screenshot();
-      this.attach(screenshot, 'image/png');
-   }
-
-   if (context && page) {
-
-      const videoPath = await page.video()?.path();
-
-      if (videoPath) {
-
-         const videoBuffer = fs.readFileSync(videoPath);
-
-         // Attach video to Allure report
-         this.attach(
-            videoBuffer,
-            'video/webm'
-            );
-      } else {
-         console.error('Video path is undefined.');
-      }
-   
-      // Clean up video and context
-      await context.close();
-   }
-
-   await browser.close();
-    
 });
