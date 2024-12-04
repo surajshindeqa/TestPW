@@ -129,12 +129,8 @@ jobs:
       # this will store current time with UTC in outputs.timestamp (eg of value: 20231028_233147Z)
       run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
 
-    - name: Download allure results from GitHub Actions Artifacts
-      uses: actions/download-artifact@v4
-      with:
-        pattern: allure-results* # pattern for multiple files previously stored as artifacts 
-        merge-multiple: true
-        path: merged-allure-results
+    - name: Copy history from s3
+      run: aws s3 cp s3:///allure-reports/latest/history ./allure-results/history --recursive
 
     - name: Generate Allure report 
       run: allure generate allure-results -o allure-report --clean
