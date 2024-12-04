@@ -1,1 +1,1 @@
-{"uid":"98d3104e051c652961429bf95fa0b5d6","name":"suites","children":[{"name":"Automated Test for Aged Care Simulation","uid":"36cbb3bdea387c98","parentUid":"98d3104e051c652961429bf95fa0b5d6","status":"passed","time":{"start":1733220044398,"stop":1733220221381,"duration":176983},"flaky":false,"newFailed":false,"newPassed":false,"newBroken":false,"retriesCount":36,"retriesStatusChange":true,"parameters":[],"tags":[]}]}
+{"uid":"98d3104e051c652961429bf95fa0b5d6","children":[],"name":"suites"}
