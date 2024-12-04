@@ -2,7 +2,7 @@ import { Given, When, Then, setDefaultTimeout, After, Status, Before } from "@cu
 import { Browser, BrowserContext, Page, chromium } from 'playwright';
 import * as fs from 'fs';
 
-setDefaultTimeout(1000000);
+
 
 let browser: Browser, context: BrowserContext, page: Page;
 

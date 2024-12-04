@@ -7,6 +7,8 @@ import * as gtts from 'google-tts-api'
 import ffmpeg = require('fluent-ffmpeg');
 import { getPage } from "../../corelib/corelib.spec";
 
+setDefaultTimeout(50000);
+
 const outputFilePath = path.join(__dirname, '../output.mp3');
 const wavFilePath = path.join(__dirname, '../output.wav');
 let responsetxt: string | string[] = [];
