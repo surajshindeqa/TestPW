@@ -10,7 +10,7 @@ Before(async function () {
 
     try {
         browser = await chromium.launch({
-            headless: true,
+            headless: false,
             args: [
                 '--start-maximized',
                 '--use-fake-device-for-media-stream',
