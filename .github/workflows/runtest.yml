@@ -130,7 +130,7 @@ jobs:
       run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
 
     - name: Copy history from s3
-      run: aws s3 cp s3:///allure-reports/latest/history ./allure-results/history --recursive
+      run: aws s3 cp s3://audirietestreports/history ./allure-results/history --recursive
 
     - name: Generate Allure report 
       run: allure generate allure-results -o allure-report --clean
