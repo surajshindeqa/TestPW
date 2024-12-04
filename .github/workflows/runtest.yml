@@ -72,23 +72,31 @@ jobs:
         run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
 
          
-      - name: Upload Playwright Videos/Artifacts
-        uses: actions/upload-artifact@v4
+      - name: Get Allure history
+        uses: actions/checkout@v4
+        if: always()
+        continue-on-error: true
         with:
-          name: allure-results
-          path: allure-results  # Path where Playwright saves video files
+          ref: gh-pages
+          path: gh-pages
 
-      - name: Upload Allure Report
-        uses: actions/upload-artifact@v4
+      - name: Allure Report action from marketplace
+        uses: simple-elf/allure-report-action@master
+        if: always()
+        id: allure-report
         with:
-          name: allure-report
-          path: allure-report  # Path where Allure reports are generated
+          allure_results: target/allure-results
+          gh_pages: gh-pages
+          allure_report: allure-report
+          allure_history: allure-history
 
-      - name: Deploy Allure report to GitHub Pages
+      - name: Deploy report to Github Pages
+        if: always()
         uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./allure-report
+        env:
+          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PUBLISH_BRANCH: gh-pages
+          PUBLISH_DIR: allure-history
 
 
   generate-report:
