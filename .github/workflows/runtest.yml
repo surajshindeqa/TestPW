@@ -140,8 +140,6 @@ jobs:
     - name: Copy history from s3
       run: aws s3 cp s3://audirietestreports/history ./merged-allure-results/history --recursive
 
-    - name: Generate Allure report 
-      run: allure generate ./merged-allure-results -o ./allure-report --clean
 
     # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
     - name: Backup the history with the latest data
