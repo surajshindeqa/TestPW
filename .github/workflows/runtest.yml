@@ -80,17 +80,22 @@ jobs:
       - name: Get Allure history
         uses: actions/checkout@v4
         if: always()
-        continue-on-error: true
         with:
           ref: gh-pages
-          path: gh-pages
+          path: allure-history
+
+      - name: Merge Allure history
+        run: |
+          mkdir -p build/allure-results/history
+          cp -r allure-history/* build/allure-results/history || true
+
 
       - name: Build test report
         uses: simple-elf/allure-report-action@v1.7
         if: always()
         with:
           gh_pages: gh-pages
-          allure_history: allure-history
+          allure_history: build/allure-results/history
           allure_results: build/allure-results
 
       - name: Publish test report
@@ -100,14 +105,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_branch: gh-pages
           publish_dir: allure-history
-
-      - name: Upload results to Artifacts
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: allure-results
-          path: allure-results
-
 
 
   generate-report:
