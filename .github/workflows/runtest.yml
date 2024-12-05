@@ -138,7 +138,7 @@ jobs:
 
 
     - name: Generate Allure report 
-      run: npx allure generate ./merged-allure-results --clean
+      run: allure generate ./merged-allure-results
 
     # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
     - name: Backup the history with the latest data
