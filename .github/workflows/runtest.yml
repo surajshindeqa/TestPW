@@ -157,4 +157,4 @@ jobs:
         subject: Github Actions job result
         to: suraj@audirie.com
         from: suraj@audirie.com
-        body: Build job of ${{github.repository}} completed! Report URL:  http://audirietestreports.s3-website.eu-north-1.amazonaws.com/report/${{ steps.timestampid.outputs.timestamp }}/index.html
+        body: Build job of ${{github.repository}} completed! Report URL-  http://audirietestreports.s3-website.eu-north-1.amazonaws.com/report/${{ steps.timestampid.outputs.timestamp }}/index.html
