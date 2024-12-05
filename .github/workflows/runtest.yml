@@ -96,6 +96,13 @@ jobs:
           publish_branch: gh-pages
           publish_dir: allure-history
 
+      - name: Upload results to Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: allure-results
+          path: allure-results
+
 
 
   generate-report:
@@ -129,11 +136,19 @@ jobs:
       # this will store current time with UTC in outputs.timestamp (eg of value: 20231028_233147Z)
       run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
 
+    - name: Download allure results from GitHub Actions Artifacts
+      uses: actions/download-artifact@v4
+      with:
+        pattern: allure-results* # pattern for multiple files previously stored as artifacts 
+        merge-multiple: true
+        path: merged-allure-results # name of the folder where ALL results will be extracted
+
+
     - name: Copy history from s3
-      run: aws s3 cp s3://audirietestreports/history ./allure-results/history --recursive
+      run: aws s3 cp s3://audirietestreports/history ./merged-allure-results/history --recursive
 
     - name: Generate Allure report 
-      run: allure generate ./allure-results -o ./allure-report --clean
+      run: allure generate ./merged-allure-results -o ./allure-report --clean
 
     # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
     - name: Backup the history with the latest data
