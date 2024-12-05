@@ -49,6 +49,9 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: Install allure
+        run: npm install -g allure-commandline
+
       - name: Install PulseAudio on Ubuntu
         run: |
           sudo apt-get update
@@ -71,7 +74,9 @@ jobs:
       - name: Run Tests
         run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
 
-         
+      - name: generate allure report
+        run: allure generate allure-results -o allure-report --clean
+
       - name: Get Allure history
         uses: actions/checkout@v4
         if: always()
