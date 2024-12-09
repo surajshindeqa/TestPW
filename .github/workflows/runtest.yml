@@ -45,7 +45,6 @@ jobs:
             libxdamage1 libxrandr2 libasound2 libgbm1 libpango-1.0-0 \
             libgtk-3-0 libxtst6 libnss3 libxss1 libgdk-pixbuf2.0-0 \
             libappindicator3-1 libgdk-pixbuf2.0-0 libcanberra-gtk-module
-
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
@@ -59,12 +58,10 @@ jobs:
           pulseaudio --check || pulseaudio --start
           pactl load-module module-null-sink sink_name=vspeaker sink_properties=device.description=virtual_speaker
           pactl load-module module-remap-source master=vspeaker.monitor source_name=vmic source_properties=device.description=virtual_mic
-
       - name: install xvfb
         run: |
           sudo apt update
           sudo apt install xvfb
-
       - name: Install PulseAudio on Ubuntu
         run: pulseaudio --start
 
@@ -86,20 +83,17 @@ jobs:
         id: timestampid
         run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
 
-
+      - name: Download history from S3
+        run: |
+          mkdir -p allure-report/history
+          aws s3 cp s3://audiriereport/latest/history/ allure-report/history/ --recursive
       - name: Clean allure-results
         run: |
           rm -rf allure-results
           mkdir allure-results
-
-      - name: Download history from S3
-        run: |
-          mkdir -p allure-report/history
-          aws s3 cp s3://audiriereport/latest/history/ allure-results/history/ --recursive
-
-
+          
       - name: Run Tests
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format json:allure-results/results.json
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format allure-cucumberjs/reporter
 
       - name: Check if Allure results exist
         if: always()
@@ -108,7 +102,6 @@ jobs:
             echo "❌ No Allure results found.";
             exit 1;
           fi
-
       - name: Create Executor.json
         if: always()
         run: |
@@ -118,14 +111,12 @@ jobs:
             "url": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}",
             "buildOrder": ${{ github.run_number }},
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
-            "reportName": "Audirie Test Report",
-            "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/index.html",
-            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            "reportName": "Audirie Test Report"
           }' > allure-results/executor.json
-
+          
       - name: Generate Allure Report
         if: always()
-        run: allure generate allure-results
+        run: allure generate allure-results --clean
 
       - name: Upload Allure Report to S3
         if: always()
@@ -152,4 +143,4 @@ jobs:
           subject: Github Actions job result
           to: suraj@audirie.com
           from: suraj@audirie.com
-          body: Build job of ${{github.repository}} completed! Report URL-  http://audiriereport.s3-website.eu-north-1.amazonaws.com/build-${{ github.run_number }}/index.html
+          body: Build job of ${{github.repository}} completed! Report URL-  http://audiriereport.s3-website.eu-north-1.amazonaws.com/latest/build-${{ github.run_number }}/index.html
