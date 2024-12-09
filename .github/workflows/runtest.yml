@@ -120,7 +120,7 @@ jobs:
 
       - name: Backup the history with the latest data
         if: always()
-        run: aws s3 cp s3://audiriereport/latest/history ./allure-report/history/
+        run: aws s3 cp s3://audiriereport/latest/history ./allure-report/history --recursive
 
       - name: clear latest folder
         if: always()
