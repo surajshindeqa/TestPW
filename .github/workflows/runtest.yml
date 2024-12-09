@@ -100,6 +100,7 @@ jobs:
         run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format json:allure-results/results.json
 
       - name: Check if Allure results exist
+        if: always()
         run: |
           if [ -z "$(ls -A allure-results/)" ]; then
             echo "❌ No Allure results found.";
@@ -107,6 +108,7 @@ jobs:
           fi
 
       - name: Create Executor.json
+        if: always()
         run: |
           echo '{
             "name": "GitHub Actions",
@@ -118,12 +120,15 @@ jobs:
           }' > allure-results/executor.json
 
       - name: Generate Allure Report
+        if: always()
         run: allure generate allure-results --clean
 
       - name: Upload Allure Report to S3
+        if: always()
         run: aws s3 sync allure-report/ s3://audiriereport/latest/ --delete
 
       - name: Deploy Report to Build Folder on S3
+        if: always()
         run: aws s3 sync allure-report/ s3://audiriereport/build-${{ github.run_number }}/ --delete
   
       - name: Write URL in summary
