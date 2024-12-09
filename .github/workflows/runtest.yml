@@ -93,6 +93,10 @@ jobs:
       - name: Create Allure Results Directory
         if: always()
         run: mkdir -p allure-results
+
+      - name: Backup the history with the latest data
+        if: always()
+        run: aws s3 cp s3://audiriereport/latest/history ./allure-results --recursive
   
       - name: Generate Allure report
         if: always()
@@ -118,9 +122,7 @@ jobs:
             }
           }' > allure-report/widgets/executors.json
 
-      - name: Backup the history with the latest data
-        if: always()
-        run: aws s3 cp s3://audiriereport/latest/history ./allure-report/history --recursive
+
 
       - name: clear latest folder
         if: always()
