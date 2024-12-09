@@ -73,33 +73,6 @@ jobs:
       
       - name: Run Tests
         run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
-
-      - name: Get Allure history.
-        uses: actions/checkout@v2
-        if: always()
-        continue-on-error: true
-        with:
-          ref: gh-pages
-          path: gh-pages
-
-      - name: Allure Report action from marketplace.
-        uses: simple-elf/allure-report-action@master
-        if: always()
-        with:
-          allure_results: allure-results
-          allure_history: allure-history
-
-      - name: Deploy report to Github Pages.
-        if: always()
-        uses: peaceiris/actions-gh-pages@v2
-        env:
-          PERSONAL_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          PUBLISH_BRANCH: gh-pages
-          PUBLISH_DIR: allure-history
-
-
-      - name: Install allure
-        run: npm install -g allure-commandline
   
       - name: AWS cli setup
         uses: aws-actions/configure-aws-credentials@v4
@@ -114,25 +87,48 @@ jobs:
         # this will store current time with UTC in outputs.timestamp (eg of value: 20231028_233147Z)
         run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
   
-      - name: Download allure results from GitHub Actions Artifacts
-        uses: actions/download-artifact@v4
-        with:
-          merge-multiple: true
-          path: merged-allure-results # name of the folder where ALL results will be extracted
-  
+    
+      - name: Create Allure Results Directory
+        run: mkdir -p allure-results
   
       - name: Generate Allure report 
-        run: allure generate allure-results -o allure-report --clean
+        run: allure generate allure-results --clean
+
+      - name: Create Executor.json
+        run: |
+          echo '{
+            "name": "GitHub Actions",
+            "type": "s3",
+            "url": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}",
+            "buildOrder": ${{ github.run_number }},
+            "buildName": "GitHub Actions Run #${{ github.run_number }}",
+            "reportName": "Audirie Test Report",
+            "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/index.html",
+            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+            "context": {
+              "jobName": "${{ github.job }}",
+              "jobUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
+              "buildId": "${{ github.run_id }}",
+              "executionTime": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
+            }
+          }' > allure-report/executor.json
+
+      - name: clear latest folder
+        run: aws s3 rm s3://audiriereport/latest --recursive
+
   
       # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
       - name: Backup the history with the latest data
-        run: aws s3 cp ./allure-report/history s3://audirietestreports/history/  --recursive
+        run: aws s3 cp ./allure-report/history s3://audiriereport/latest/history/  --recursive
+
+      - name: Deploy html report to S3
+        run: aws s3 cp ./allure-report s3://audiriereport/latest/ --recursive
   
       - name: Deploy html report to S3
-        run: aws s3 cp ./allure-report s3://audirietestreports/report/${{ steps.timestampid.outputs.timestamp }}/ --recursive
+        run: aws s3 cp ./allure-report s3://audiriereport/build-${{ github.run_number }}/ --recursive
   
       - name: Write URL in summary
-        run: echo "### Test results - http://audirietestreports.s3-website.eu-north-1.amazonaws.com/report/${{ steps.timestampid.outputs.timestamp }}/index.html" >> $GITHUB_STEP_SUMMARY
+        run: echo "### Test results - http://audiriereport.s3-website.eu-north-1.amazonaws.com/latest/index.html" >> $GITHUB_STEP_SUMMARY
   
       
       - name: Send mail
