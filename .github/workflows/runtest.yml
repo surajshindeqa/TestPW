@@ -115,11 +115,12 @@ jobs:
           echo '{
             "name": "GitHub Actions",
             "type": "github",
-            "url": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}",
+            "url": "https://audiriereport.s3.amazonaws.com",
             "buildOrder": ${{ github.run_number }},
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
             "reportName": "Audirie Test Report"
-            "reportUrl": "https://s3.amazonaws.com/audiriereports/build-${{ github.run_number }}/index.html"
+            "reportUrl": "https://s3.amazonaws.com/audiriereports/build-${{ github.run_number }}",
+            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
           }' > allure-results/executor.json
 
       - name: Generate Allure Report
