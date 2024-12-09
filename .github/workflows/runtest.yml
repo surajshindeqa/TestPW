@@ -1,9 +1,12 @@
 name: Run Playwright Tests
 
 on:
-  repository_dispatch:
-    types: 
-      - triggered-from-repo-A  # Matches the event_type from the Repository A curl request
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   setup-and-run-tests:
@@ -12,7 +15,7 @@ jobs:
       fail-fast: false
 
     steps:
-
+      # Step 1: Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -30,7 +33,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: List installed dependecies
+      - name: List installed dependecie
         run: npm list
 
       - name: Install Playwright dependencies
@@ -45,9 +48,6 @@ jobs:
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
 
-      - name: Install allure
-        run: npm install -g allure-commandline
-
       - name: Install PulseAudio on Ubuntu
         run: |
           sudo apt-get update
@@ -55,89 +55,34 @@ jobs:
           pulseaudio --check || pulseaudio --start
           pactl load-module module-null-sink sink_name=vspeaker sink_properties=device.description=virtual_speaker
           pactl load-module module-remap-source master=vspeaker.monitor source_name=vmic source_properties=device.description=virtual_mic
-      - name: install xvfb
-        run: |
-          sudo apt update
-          sudo apt install xvfb
       - name: Install PulseAudio on Ubuntu
         run: pulseaudio --start
-
       - name: Check virtual drivers
         run: pactl info
-    
-  
-      - name: Install Cucumber-Allure Adapter
-        run: npm install --save-dev @cucumber/gherkin @cucumber/messages @cucumber/cucumber allure-commandline
-
-      - name: AWS CLI Setup
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: eu-north-1
-
-      - name: Set a timestamp
-        id: timestampid
-        run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
-
-
-      - name: Clean allure-results
-        run: |
-          rm -rf allure-results
-          mkdir allure-results
-      - name: Download history from S3
-        run: |
-          mkdir -p allure-report/history
-          aws s3 cp s3://audiriereport/latest/history/ allure-results/history/ --recursive
-      - name: Run Tests
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format json:allure-results/results.json
-
-      - name: Check if Allure results exist
-        if: always()
-        run: |
-          if [ -z "$(ls -A allure-results/)" ]; then
-            echo "❌ No Allure results found.";
-            exit 1;
-          fi
-      - name: Create Executor.json
-        if: always()
-        run: |
-          echo '{
-            "name": "GitHub Actions",
-            "type": "github",
-            "url": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}",
-            "buildOrder": ${{ github.run_number }},
-            "buildName": "GitHub Actions Run #${{ github.run_number }}",
-            "reportName": "Audirie Test Report",
-            "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/index.html"
-          }' > allure-results/executor.json
-      - name: Generate Allure Report
-        if: always()
-        run: allure generate allure-results --clean
-
-      - name: Upload Allure Report to S3
-        if: always()
-        run: aws s3 sync allure-report/ s3://audiriereport/latest/ --delete
-
-      - name: Deploy Report to Build Folder on S3
-        if: always()
-        run: aws s3 sync allure-report/ s3://audiriereport/build-${{ github.run_number }}/ --delete
-  
-      - name: Write URL in summary
-        if: always()
-        run: echo "### Test results - http://audiriereport.s3-website.eu-north-1.amazonaws.com/latest/index.html" >> $GITHUB_STEP_SUMMARY
-  
       
-      - name: Send mail
+      - name: Run Tests
+        run: npx cucumber-js --format progress
+
+      - name: Load test report history
+        uses: actions/checkout@v3
         if: always()
-        uses: dawidd6/action-send-mail@v4
+        continue-on-error: true
         with:
-          server_address: smtp.gmail.com
-          server_port: 465
-          secure: true
-          username: ${{secrets.MAIL_USERNAME}}
-          password: ${{secrets.MAIL_PASSWORD}}
-          subject: Github Actions job result
-          to: suraj@audirie.com
-          from: suraj@audirie.com
-          body: Build job of ${{github.repository}} completed! Report URL-  http://audiriereport.s3-website.eu-north-1.amazonaws.com/latest/build-${{ github.run_number }}/index.html
+          ref: gh-pages
+          path: gh-pages
+
+      - name: Build test report
+        uses: simple-elf/allure-report-action@v1.7
+        if: always()
+        with:
+          gh_pages: gh-pages
+          allure_history: allure-history
+          allure_results: build/allure-results
+
+      - name: Publish test report
+        uses: peaceiris/actions-gh-pages@v3
+        if: always()
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_branch: gh-pages
+          publish_dir: allure-history
