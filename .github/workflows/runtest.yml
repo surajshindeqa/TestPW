@@ -128,7 +128,7 @@ jobs:
       - name: Upload Allure report to S3
         if: always()
         run: |
-          aws s3 sync allure-report/ s3://audiriereports/latest/ --delete
+          aws s3 sync allure-report/ s3://audiriereport/latest/ --delete
   
       - name: Deploy report report to seperate build folder on S3
         if: always()
