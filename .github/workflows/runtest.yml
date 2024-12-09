@@ -112,7 +112,7 @@ jobs:
             "buildOrder": ${{ github.run_number }},
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
             "reportName": "Audirie Test Report",
-            "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/"
+            "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/index.html"
           }' > allure-results/executor.json
       - name: Generate Allure Report
         if: always()
