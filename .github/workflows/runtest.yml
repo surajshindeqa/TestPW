@@ -85,17 +85,21 @@ jobs:
       # We want a unique identifier to be used when we create subdirectories on our cloud for reports 
       - name: Set a timestamp
         id: timestampid
+        if: always()
         # this will store current time with UTC in outputs.timestamp (eg of value: 20231028_233147Z)
         run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
   
     
       - name: Create Allure Results Directory
+        if: always()
         run: mkdir -p allure-results
   
-      - name: Generate Allure report 
+      - name: Generate Allure report
+        if: always()
         run: allure generate allure-results --clean
 
       - name: Create Executor.json
+        if: always()
         run: |
           echo '{
             "name": "GitHub Actions",
@@ -115,24 +119,30 @@ jobs:
           }' > allure-report/executor.json
 
       - name: clear latest folder
+        if: always()
         run: aws s3 rm s3://audiriereport/latest --recursive
 
   
       # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
       - name: Backup the history with the latest data
+        if: always()
         run: aws s3 cp ./allure-report/history s3://audiriereport/latest/history/  --recursive
 
       - name: Deploy html report to S3
+        if: always()
         run: aws s3 cp ./allure-report s3://audiriereport/latest/ --recursive
   
       - name: Deploy html report to S3
+        if: always()
         run: aws s3 cp ./allure-report s3://audiriereport/build-${{ github.run_number }}/ --recursive
   
       - name: Write URL in summary
+        if: always()
         run: echo "### Test results - http://audiriereport.s3-website.eu-north-1.amazonaws.com/latest/index.html" >> $GITHUB_STEP_SUMMARY
   
       
       - name: Send mail
+        if: always()
         uses: dawidd6/action-send-mail@v4
         with:
           server_address: smtp.gmail.com
