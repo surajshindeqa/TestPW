@@ -119,6 +119,7 @@ jobs:
             "buildOrder": ${{ github.run_number }},
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
             "reportName": "Audirie Test Report"
+            "reportUrl": "https://s3.amazonaws.com/audiriereports/build-${{ github.run_number }}/index.html"
           }' > allure-results/executor.json
 
       - name: Generate Allure Report
