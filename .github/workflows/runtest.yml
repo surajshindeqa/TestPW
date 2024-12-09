@@ -83,17 +83,17 @@ jobs:
         id: timestampid
         run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
 
-      - name: Download history from S3
-        run: |
-          mkdir -p allure-report/history
-          aws s3 cp s3://audiriereport/latest/history/ allure-report/history/ --recursive
+
       - name: Clean allure-results
         run: |
           rm -rf allure-results
           mkdir allure-results
-          
+      - name: Download history from S3
+        run: |
+          mkdir -p allure-report/history
+          aws s3 cp s3://audiriereport/latest/history/ allure-results/history/ --recursive
       - name: Run Tests
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format allure-cucumberjs/reporter
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format json:allure-results/results.json
 
       - name: Check if Allure results exist
         if: always()
@@ -113,7 +113,6 @@ jobs:
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
             "reportName": "Audirie Test Report"
           }' > allure-results/executor.json
-          
       - name: Generate Allure Report
         if: always()
         run: allure generate allure-results --clean
