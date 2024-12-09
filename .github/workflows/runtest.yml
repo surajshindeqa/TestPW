@@ -116,7 +116,11 @@ jobs:
               "buildId": "${{ github.run_id }}",
               "executionTime": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
             }
-          }' > allure-report/executor.json
+          }' > allure-report/widgets/executors.json
+
+      - name: Backup the history with the latest data
+        if: always()
+        run: aws s3 cp s3://audiriereport/latest/history ./allure-report/history/
 
       - name: clear latest folder
         if: always()
@@ -153,4 +157,4 @@ jobs:
           subject: Github Actions job result
           to: suraj@audirie.com
           from: suraj@audirie.com
-          body: Build job of ${{github.repository}} completed! Report URL-  http://audirietestreports.s3-website.eu-north-1.amazonaws.com/report/${{ steps.timestampid.outputs.timestamp }}/index.html
+          body: Build job of ${{github.repository}} completed! Report URL-  http://audiriereport.s3-website.eu-north-1.amazonaws.com/latest/build-${{ github.run_number }}/index.html
