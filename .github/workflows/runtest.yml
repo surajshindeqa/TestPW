@@ -72,7 +72,7 @@ jobs:
         run: pactl info
     
   
-       - name: Install Cucumber-Allure Adapter
+      - name: Install Cucumber-Allure Adapter
         run: npm install --save-dev @cucumber/gherkin @cucumber/messages @cucumber/cucumber allure-commandline
 
       - name: AWS CLI Setup
