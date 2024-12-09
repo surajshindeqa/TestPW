@@ -90,17 +90,20 @@ jobs:
         run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
   
     
-      - name: Create Allure Results Directory
-        if: always()
-        run: mkdir -p allure-results
+      - name: Clean old allure-results
+        run: |
+          rm -rf allure-results
+          mkdir allure-results
+
+      - name: Clean old allure report history
+        run: |
+          rm -rf allure-report/history
+          mkdir -p allure-report/history
+
 
       - name: Backup the history with the latest data
         if: always()
         run: aws s3 cp s3://audiriereport/latest/history ./allure-results --recursive
-  
-      - name: Generate Allure report
-        if: always()
-        run: allure generate allure-results --clean
 
       - name: Create Executor.json
         if: always()
@@ -113,22 +116,18 @@ jobs:
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
             "reportName": "Audirie Test Report",
             "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/index.html",
-            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-            "context": {
-              "jobName": "${{ github.job }}",
-              "jobUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-              "buildId": "${{ github.run_id }}",
-              "executionTime": "'"$(date -u +"%Y-%m-%dT%H:%M:%SZ")"'"
-            }
-          }' > allure-report/widgets/executors.json
+            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          }' > allure-results/executor.json
 
+      - name: Generate Allure report
+        if: always()
+        run: allure generate allure-results --clean
 
 
       - name: clear latest folder
         if: always()
         run: aws s3 rm s3://audiriereport/latest --recursive
 
-  
       # Copy the history to the same S3 bucket to overwrite the previous history files with updated history
       - name: Backup the history with the latest data
         if: always()
