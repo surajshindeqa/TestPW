@@ -70,9 +70,7 @@ jobs:
 
       - name: Check virtual drivers
         run: pactl info
-      
-      - name: Run Tests
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
+    
   
       - name: AWS cli setup
         uses: aws-actions/configure-aws-credentials@v4
@@ -102,6 +100,9 @@ jobs:
           rm -rf allure-report/history
           mkdir -p allure-report/history
 
+      - name: Run Tests
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
+
       - name: Backup the history with the latest data
         if: always()
         run: aws s3 cp s3://audiriereport/latest/history ./allure-results --recursive
@@ -124,16 +125,12 @@ jobs:
         if: always()
         run: allure generate allure-results --clean
 
-      - name: clear latest folder
-        if: always()
-        run: aws s3 rm s3://audiriereport/latest --recursive
-
       - name: Upload Allure report to S3
         if: always()
         run: |
-          aws s3 cp ./allure-report s3://audiriereports/latest/
+          aws s3 sync allure-report/ s3://audiriereports/latest/ --delete
   
-      - name: Deploy html report to S3
+      - name: Deploy report report to seperate build folder on S3
         if: always()
         run: aws s3 cp ./allure-report s3://audiriereport/build-${{ github.run_number }}/ --recursive
   
