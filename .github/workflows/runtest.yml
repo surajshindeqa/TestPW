@@ -33,7 +33,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: List installed dependecie
+      - name: List installed dependecies
         run: npm list
 
       - name: Install Playwright dependencies
