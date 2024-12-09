@@ -72,43 +72,41 @@ jobs:
         run: pactl info
     
   
-      - name: AWS cli setup
+       - name: Install Cucumber-Allure Adapter
+        run: npm install --save-dev @cucumber/gherkin @cucumber/messages @cucumber/cucumber allure-commandline
+
+      - name: AWS CLI Setup
         uses: aws-actions/configure-aws-credentials@v4
-        if: always()
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-north-1
-  
-      # We want a unique identifier to be used when we create subdirectories on our cloud for reports 
+
       - name: Set a timestamp
         id: timestampid
-        if: always()
-        # this will store current time with UTC in outputs.timestamp (eg of value: 20231028_233147Z)
         run: echo "timestamp=$(date --utc +%Y%m%d_%H%M%SZ)" >> "$GITHUB_OUTPUT" 
-  
-    
-      - name: Clean old allure-results
-        if: always()
+
+      - name: Download history from S3
+        run: |
+          mkdir -p allure-report/history
+          aws s3 cp s3://audiriereport/latest/history/ allure-report/history/ --recursive
+
+      - name: Clean allure-results
         run: |
           rm -rf allure-results
           mkdir allure-results
 
-      - name: Clean old allure report history
-        if: always()
-        run: |
-          rm -rf allure-report/history
-          mkdir -p allure-report/history
-
       - name: Run Tests
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format json:allure-results/results.json
 
-      - name: Backup the history with the latest data
-        if: always()
-        run: aws s3 cp s3://audiriereport/latest/history ./allure-results --recursive
+      - name: Check if Allure results exist
+        run: |
+          if [ -z "$(ls -A allure-results/)" ]; then
+            echo "❌ No Allure results found.";
+            exit 1;
+          fi
 
       - name: Create Executor.json
-        if: always()
         run: |
           echo '{
             "name": "GitHub Actions",
@@ -116,23 +114,17 @@ jobs:
             "url": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}",
             "buildOrder": ${{ github.run_number }},
             "buildName": "GitHub Actions Run #${{ github.run_number }}",
-            "reportName": "Audirie Test Report",
-            "reportUrl": "https://audiriereport.s3.amazonaws.com/build-${{ github.run_number }}/index.html",
-            "buildUrl": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+            "reportName": "Audirie Test Report"
           }' > allure-results/executor.json
 
-      - name: Generate Allure report
-        if: always()
+      - name: Generate Allure Report
         run: allure generate allure-results --clean
 
-      - name: Upload Allure report to S3
-        if: always()
-        run: |
-          aws s3 sync allure-report/ s3://audiriereport/latest/ --delete
-  
-      - name: Deploy report report to seperate build folder on S3
-        if: always()
-        run: aws s3 cp ./allure-report s3://audiriereport/build-${{ github.run_number }}/ --recursive
+      - name: Upload Allure Report to S3
+        run: aws s3 sync allure-report/ s3://audiriereport/latest/ --delete
+
+      - name: Deploy Report to Build Folder on S3
+        run: aws s3 sync allure-report/ s3://audiriereport/build-${{ github.run_number }}/ --delete
   
       - name: Write URL in summary
         if: always()
