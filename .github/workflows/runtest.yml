@@ -15,7 +15,6 @@ jobs:
       fail-fast: false
 
     steps:
-      # Step 1: Checkout code
       - name: Checkout Code
         uses: actions/checkout@v4
 
@@ -33,7 +32,7 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
-      - name: List installed dependecie
+      - name: List installed dependecies
         run: npm list
 
       - name: Install Playwright dependencies
@@ -45,8 +44,12 @@ jobs:
             libxdamage1 libxrandr2 libasound2 libgbm1 libpango-1.0-0 \
             libgtk-3-0 libxtst6 libnss3 libxss1 libgdk-pixbuf2.0-0 \
             libappindicator3-1 libgdk-pixbuf2.0-0 libcanberra-gtk-module
+
       - name: Install Playwright Browsers
         run: npx playwright install --with-deps
+
+      - name: Install allure
+        run: npm install -g allure-commandline
 
       - name: Install PulseAudio on Ubuntu
         run: |
@@ -55,13 +58,23 @@ jobs:
           pulseaudio --check || pulseaudio --start
           pactl load-module module-null-sink sink_name=vspeaker sink_properties=device.description=virtual_speaker
           pactl load-module module-remap-source master=vspeaker.monitor source_name=vmic source_properties=device.description=virtual_mic
-      - name: Install PulseAudio on Ubuntu
+      
+      - name: install xvfb
+        run: |
+          sudo apt update
+          sudo apt install xvfb
+
+      - name: Start PulseAudio
         run: pulseaudio --start
+
       - name: Check virtual drivers
         run: pactl info
+  
+      - name: Install Cucumber-Allure Adapter
+        run: npm install --save-dev @cucumber/gherkin @cucumber/messages @cucumber/cucumber allure-commandline
       
       - name: Run Tests
-        run: npx cucumber-js --format progress
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
 
       - name: Load test report history
         uses: actions/checkout@v3

@@ -12,7 +12,16 @@ Before(async function () {
         browser = await chromium.launch({
             headless: false,
             args: [
-                '--start-maximized'
+                '--start-maximized',
+                '--use-fake-device-for-media-stream',
+                '--use-fake-ui-for-media-stream',
+                '--no-sandbox', 
+                '--disable-web-security', 
+                '--allow-file-access-from-files',
+                '--use-gl=egl',
+                '--enable-features=WebRTCPipeWireCapturer', 
+                '--enable-features=MediaStreamAudioSource', 
+                '--disable-features=AudioServiceOutOfProcess', 
             ]
         });
 
