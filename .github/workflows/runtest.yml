@@ -74,7 +74,7 @@ jobs:
         run: npm install --save-dev @cucumber/gherkin @cucumber/messages @cucumber/cucumber allure-commandline
       
       - name: Run Tests
-        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format progress
+        run: xvfb-run --auto-servernum --server-args='-screen 0 1024x768x24' npx cucumber-js --format json:allure-results/results.json
 
       - name: Load test report history
         uses: actions/checkout@v3
