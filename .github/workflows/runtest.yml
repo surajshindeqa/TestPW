@@ -10,7 +10,7 @@ on:
 
 jobs:
   setup-and-run-tests:
-    runs-on: ubuntu-latest  # Use an Ubuntu runner for the tests
+    runs-on: ubuntu-latest  # Use an Ubuntu runner for the test
     strategy:
       fail-fast: false
 
