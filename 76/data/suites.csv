@@ -1,0 +1,5 @@
+"Status","Start Time","Stop Time","Duration in ms","Parent Suite","Suite","Sub Suite","Test Class","Test Method","Name","Description"
+"failed","Sat Dec 14 03:16:46 GMT 2024","Sat Dec 14 03:16:52 GMT 2024","6802","","","","","","Resume a paused Aged Care simulation and pause a second time.",""
+"passed","Sat Dec 14 03:14:11 GMT 2024","Sat Dec 14 03:14:31 GMT 2024","19668","","","","","","User login to Audirie with valid credentials",""
+"broken","Sat Dec 14 03:14:31 GMT 2024","Sat Dec 14 03:15:44 GMT 2024","73336","","","","","","Automated Test for Aged Care Simulation",""
+"passed","Sat Dec 14 03:15:44 GMT 2024","Sat Dec 14 03:16:46 GMT 2024","61734","","","","","","Run through an Aged Care simulation and pause it once in the simulation.",""
